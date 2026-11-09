@@ -33,3 +33,34 @@ REPORTS_FIGURES_DIR = REPORTS_DIR / "figures"
 REPORTS_METRICS_DIR = REPORTS_DIR / "metrics"
 REPORTS_TABLES_DIR = REPORTS_DIR / "tables"
 
+TRAIN_FEATURES_PATH = DATA_PROCESSED_DIR / "X_train.csv"
+TRAIN_TARGET_PATH = DATA_PROCESSED_DIR / "y_train.csv"
+TEST_FEATURES_PATH = DATA_PROCESSED_DIR / "X_test.csv"
+TEST_TARGET_PATH = DATA_PROCESSED_DIR / "y_test.csv"
+
+BASELINE_RESULTS_PATH = REPORTS_METRICS_DIR / "baseline_results.json"
+OPTIMIZATION_RESULTS_PATH = REPORTS_METRICS_DIR / "optimization_results.json"
+FINAL_METRICS_PATH = REPORTS_METRICS_DIR / "final_evaluation_metrics.json"
+MODEL_METADATA_PATH = MODELS_DIR / "model_metadata.json"
+
+STUDENT_ID_COLUMN = "Student_ID"
+
+NUMERICAL_FEATURES = [
+    "Age",
+    "Year_of_Study",
+    "Sleep_Hours",
+    "Study_Hours_Per_Week",
+    "GPA",
+    "Social_Media_Hours",
+    "Screen_Time_Hours",
+    "Financial_Stress",
+    "Family_Support",
+    "Attendance_Rate",
+]
+
+ENGINEERED_NUMERICAL_FEATURES = NUMERICAL_FEATURES + ["sleep_to_screen_ratio"]
+
+ORDINAL_FEATURES = ["Physical_Activity", "Diet_Quality"]
+
+NOMINAL_FEATURES = ["Gender"]
+

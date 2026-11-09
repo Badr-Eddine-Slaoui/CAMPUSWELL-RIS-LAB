@@ -64,3 +64,28 @@ ORDINAL_FEATURES = ["Physical_Activity", "Diet_Quality"]
 
 NOMINAL_FEATURES = ["Gender"]
 
+BINARY_FEATURES = ["Part_Time_Job", "Previous_Mental_Health_History"]
+
+PHYSICAL_ACTIVITY_ORDER = ["Low", "Moderate", "High"]
+
+DIET_QUALITY_ORDER = ["Poor", "Average", "Good"]
+
+TARGET_CLASSES = ["Low", "Medium", "High"]
+
+REQUIRED_COLUMNS = (
+    [STUDENT_ID_COLUMN]
+    + NUMERICAL_FEATURES
+    + ORDINAL_FEATURES
+    + NOMINAL_FEATURES
+    + BINARY_FEATURES
+    + [TARGET_COLUMN]
+)
+
+
+def validate_config():
+    missing = []
+    if not DATA_PATH.exists():
+        missing.append(f"Dataset not found at: {DATA_PATH}")
+    if missing:
+        return False, missing
+    return True, []

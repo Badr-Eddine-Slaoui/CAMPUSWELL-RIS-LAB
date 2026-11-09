@@ -124,3 +124,12 @@ def run_full_validation(df: pd.DataFrame) -> dict:
     logger.info("Running full data validation...")
     report = {
         "column_check": check_required_columns(df),
+        "missing_values": check_missing_values(df).to_dict(),
+        "duplicates": check_duplicates(df),
+        "target_categories": check_target_categories(df),
+        "categorical_issues": check_categorical_values(df),
+        "numerical_range_flags": check_numerical_ranges(df),
+    }
+    logger.info("Validation complete.")
+    return report
+

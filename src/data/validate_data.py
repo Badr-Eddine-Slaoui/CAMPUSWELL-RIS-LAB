@@ -56,3 +56,37 @@ def check_target_categories(df: pd.DataFrame) -> dict:
         "class_counts": df[TARGET_COLUMN].value_counts().to_dict(),
     }
 
+
+def check_categorical_values(df: pd.DataFrame) -> dict:
+    issues = {}
+    if "Gender" in df.columns:
+        expected_gender = {"Male", "Female", "Non-binary"}
+        actual_gender = set(df["Gender"].dropna().unique())
+        unexpected = actual_gender - expected_gender
+        if unexpected:
+            issues["Gender"] = {"unexpected_values": list(unexpected)}
+
+    if "Physical_Activity" in df.columns:
+        expected_pa = set(PHYSICAL_ACTIVITY_ORDER)
+        actual_pa = set(df["Physical_Activity"].dropna().unique())
+        unexpected = actual_pa - expected_pa
+        if unexpected:
+            issues["Physical_Activity"] = {"unexpected_values": list(unexpected)}
+
+    if "Diet_Quality" in df.columns:
+        expected_dq = set(DIET_QUALITY_ORDER)
+        actual_dq = set(df["Diet_Quality"].dropna().unique())
+        unexpected = actual_dq - expected_dq
+        if unexpected:
+            issues["Diet_Quality"] = {"unexpected_values": list(unexpected)}
+
+    for col in ["Part_Time_Job", "Previous_Mental_Health_History"]:
+        if col in df.columns:
+            expected = {"Yes", "No"}
+            actual = set(df[col].dropna().unique())
+            unexpected = actual - expected
+            if unexpected:
+                issues[col] = {"unexpected_values": list(unexpected)}
+    return issues
+
+

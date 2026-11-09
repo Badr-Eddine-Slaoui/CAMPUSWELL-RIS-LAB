@@ -18,3 +18,12 @@ def load_dataset(path: Path = DATA_PATH) -> pd.DataFrame:
     logger.info(f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
     return df
 
+
+def get_dataset_info(df: pd.DataFrame) -> dict:
+    return {
+        "shape": df.shape,
+        "columns": df.columns.tolist(),
+        "dtypes": df.dtypes.to_dict(),
+        "memory_usage_mb": df.memory_usage(deep=True).sum() / (1024 ** 2),
+    }
+

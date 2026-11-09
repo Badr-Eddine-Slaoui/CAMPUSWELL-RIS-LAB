@@ -1,0 +1,16 @@
+.venv/
+*.pyc
+__pycache__/
+.env
+*.joblib
+*.pkl
+data/raw/*.csv
+data/interim/*.csv
+data/processed/*.csv
+reports/figures/
+reports/metrics/
+reports/tables/
+.airflow/
+logs/
+*.pid
+

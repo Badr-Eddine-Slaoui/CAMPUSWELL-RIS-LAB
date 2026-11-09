@@ -21,3 +21,15 @@ def load_pipeline(path: Path):
     return joblib.load(path)
 
 
+def save_metadata(metadata: dict, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(metadata, f, indent=2, default=str)
+    logger.info(f"Metadata saved to: {path}")
+
+
+def load_metadata(path: Path) -> dict:
+    with open(path, "r") as f:
+        return json.load(f)
+
+print(load_pipeline(MODEL_PATH))

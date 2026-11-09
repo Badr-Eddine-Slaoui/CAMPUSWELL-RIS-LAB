@@ -51,3 +51,12 @@ def cross_val_metrics_summary(cv_results: dict) -> dict:
 
 def save_metrics(metrics: dict, path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(metrics, f, indent=2, default=str)
+    logger.info(f"Metrics saved to: {path}")
+
+
+def load_metrics(path) -> dict:
+    with open(path, "r") as f:
+        return json.load(f)
+

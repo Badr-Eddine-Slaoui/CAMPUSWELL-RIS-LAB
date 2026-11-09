@@ -1,0 +1,39 @@
+# ============================================================
+# CampusWell RiskLab — Python Dependencies
+# Python 3.14 | Airflow 3.4.0
+# Generated from verified local .venv installation
+# ============================================================
+
+# --- Data manipulation ---
+numpy==2.5.4
+pandas==3.1.1
+
+# --- Data visualization ---
+matplotlib==3.11.2
+seaborn==0.13.2
+plotly==7.1.0
+
+# --- Machine Learning ---
+scikit-learn==1.9.1
+xgboost==3.4.1
+imbalanced-learn==0.14.2
+
+# --- Model serialization ---
+joblib==1.6.0
+
+# --- Environment management ---
+python-dotenv==1.2.4
+
+# --- Notebooks ---
+jupyter==1.1.1
+ipykernel==7.4.0
+nbformat==5.11.1
+
+# --- Application ---
+streamlit==1.67.0
+
+# --- Workflow orchestration ---
+# Installed with official Python 3.14 constraints file:
+# pip install "apache-airflow==3.4.0" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.4.0/constraints-3.4.0.txt"
+apache-airflow==3.4.0
+dill==0.4.1

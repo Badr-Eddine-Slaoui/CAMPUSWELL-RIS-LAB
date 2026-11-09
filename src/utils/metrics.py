@@ -37,3 +37,17 @@ def compute_classification_metrics(y_true, y_pred, y_proba=None) -> dict:
 
 
 def cross_val_metrics_summary(cv_results: dict) -> dict:
+    summary = {}
+    for key, values in cv_results.items():
+        if key.startswith("test_") or key.startswith("train_"):
+            arr = np.array(values)
+            summary[key] = {
+                "mean": float(arr.mean()),
+                "std": float(arr.std()),
+                "values": arr.tolist(),
+            }
+    return summary
+
+
+def save_metrics(metrics: dict, path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)

@@ -90,3 +90,37 @@ def check_categorical_values(df: pd.DataFrame) -> dict:
     return issues
 
 
+def check_numerical_ranges(df: pd.DataFrame) -> dict:
+    expected_ranges = {
+        "Age": (17, 35),
+        "Year_of_Study": (1, 5),
+        "Sleep_Hours": (3.0, 12.0),
+        "Study_Hours_Per_Week": (0, 60),
+        "GPA": (0.0, 4.0),
+        "Social_Media_Hours": (0.0, 15.0),
+        "Screen_Time_Hours": (0.0, 20.0),
+        "Financial_Stress": (1.0, 10.0),
+        "Family_Support": (1.0, 10.0),
+        "Attendance_Rate": (0.0, 100.0),
+    }
+    flags = {}
+    for col, (low, high) in expected_ranges.items():
+        if col in df.columns:
+            series = df[col].dropna()
+            below = int((series < low).sum())
+            above = int((series > high).sum())
+            if below > 0 or above > 0:
+                flags[col] = {
+                    "expected_range": (low, high),
+                    "actual_min": float(series.min()),
+                    "actual_max": float(series.max()),
+                    "below_min_count": below,
+                    "above_max_count": above,
+                }
+    return flags
+
+
+def run_full_validation(df: pd.DataFrame) -> dict:
+    logger.info("Running full data validation...")
+    report = {
+        "column_check": check_required_columns(df),

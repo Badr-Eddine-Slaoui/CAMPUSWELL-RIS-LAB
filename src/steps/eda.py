@@ -71,3 +71,36 @@ def compute_descriptive_stats(df: pd.DataFrame) -> pd.DataFrame:
     stats_df["iqr"] = stats_df["75%"] - stats_df["25%"]
     stats_df["skewness"] = df[numeric_cols].skew()
     stats_df["kurtosis"] = df[numeric_cols].kurt()
+    return stats_df
+
+
+def compute_correlations(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    numeric_cols = [c for c in NUMERICAL_FEATURES if c in df.columns]
+    pearson_corr = df[numeric_cols].corr(method="pearson")
+    spearman_corr = df[numeric_cols].corr(method="spearman")
+    return pearson_corr, spearman_corr
+
+
+def compute_vif(df: pd.DataFrame) -> pd.DataFrame:
+    numeric_cols = [c for c in NUMERICAL_FEATURES if c in df.columns]
+    clean_df = df[numeric_cols].dropna()
+    vif_records = []
+    for col in numeric_cols:
+        x_other = clean_df.drop(columns=[col])
+        y_col = clean_df[col]
+        lr = LinearRegression().fit(x_other, y_col)
+        r2 = lr.score(x_other, y_col)
+        vif_val = 1.0 / (1.0 - r2) if r2 < 1.0 else np.inf
+        vif_records.append({"feature": col, "vif": round(float(vif_val), 4), "r_squared": round(float(r2), 4)})
+    return pd.DataFrame(vif_records).sort_values("vif", ascending=False)
+
+
+def compute_kruskal_wallis(df: pd.DataFrame) -> pd.DataFrame:
+    numeric_cols = [c for c in NUMERICAL_FEATURES if c in df.columns]
+    results = []
+    for col in numeric_cols:
+        groups = [grp[col].dropna() for _, grp in df.groupby(TARGET_COLUMN)]
+        stat, pval = stats.kruskal(*groups)
+        results.append({"feature": col, "kruskal_stat": round(float(stat), 4), "p_value": float(pval)})
+    return pd.DataFrame(results).sort_values("kruskal_stat", ascending=False)
+

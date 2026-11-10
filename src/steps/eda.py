@@ -104,3 +104,47 @@ def compute_kruskal_wallis(df: pd.DataFrame) -> pd.DataFrame:
         results.append({"feature": col, "kruskal_stat": round(float(stat), 4), "p_value": float(pval)})
     return pd.DataFrame(results).sort_values("kruskal_stat", ascending=False)
 
+
+def compute_cramers_v(df: pd.DataFrame) -> pd.DataFrame:
+    cat_cols = ORDINAL_FEATURES + NOMINAL_FEATURES + BINARY_FEATURES
+    results = []
+    for col in cat_cols:
+        if col in df.columns:
+            valid = df[[col, TARGET_COLUMN]].dropna()
+            ct = pd.crosstab(valid[col], valid[TARGET_COLUMN])
+            chi2, pval, dof, _ = stats.chi2_contingency(ct)
+            n = ct.sum().sum()
+            r, k = ct.shape
+            v = np.sqrt(chi2 / (n * (min(r, k) - 1)))
+            results.append({"categorical_feature": col, "chi2": round(float(chi2), 4), "p_value": float(pval), "cramers_v": round(float(v), 4)})
+    return pd.DataFrame(results).sort_values("cramers_v", ascending=False)
+
+
+def generate_eda_figures(df: pd.DataFrame, figures_dir: Path = REPORTS_FIGURES_DIR) -> None:
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    fig = plot_target_distribution(df[TARGET_COLUMN], save_path=figures_dir / "target_distribution.png")
+    plt.close(fig)
+
+    fig = plot_correlation_heatmap(df, save_path=figures_dir / "correlation_heatmap.png")
+    plt.close(fig)
+
+    numeric_cols = [c for c in NUMERICAL_FEATURES if c in df.columns]
+    spearman_corr = df[numeric_cols].corr(method="spearman")
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(spearman_corr, annot=True, fmt=".2f", cmap="coolwarm", center=0, ax=ax, linewidths=0.5)
+    ax.set_title("Spearman Rank Correlation Heatmap")
+    plt.tight_layout()
+    save_figure(fig, figures_dir / "spearman_correlation_heatmap.png")
+    plt.close(fig)
+
+    fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(20, 8))
+    axes = axes.flatten()
+    for i, col in enumerate(numeric_cols[:10]):
+        df[col].hist(ax=axes[i], bins=25, edgecolor="black", color="#2b5c8f", alpha=0.75)
+        axes[i].set_title(col, fontsize=11, fontweight="bold")
+        axes[i].set_xlabel(col)
+        axes[i].set_ylabel("Frequency")
+    plt.tight_layout()
+    save_figure(fig, figures_dir / "numerical_distributions.png")
+    plt.close(fig)

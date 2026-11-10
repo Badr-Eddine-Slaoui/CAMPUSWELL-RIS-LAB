@@ -183,3 +183,26 @@ def generate_eda_report(df: pd.DataFrame, tables_dir: Path = REPORTS_TABLES_DIR,
     missing_report = analyze_missing_values(df)
     duplicate_report = analyze_duplicates(df)
     target_report = analyze_target_distribution(df)
+    stats_df = compute_descriptive_stats(df)
+    pearson_corr, spearman_corr = compute_correlations(df)
+    vif_df = compute_vif(df)
+    kruskal_df = compute_kruskal_wallis(df)
+    cramers_df = compute_cramers_v(df)
+
+    missing_report.to_csv(tables_dir / "missing_values_report.csv")
+    stats_df.to_csv(tables_dir / "descriptive_statistics.csv")
+    pearson_corr.to_csv(tables_dir / "pearson_correlations.csv")
+    spearman_corr.to_csv(tables_dir / "spearman_correlations.csv")
+    vif_df.to_csv(tables_dir / "vif_report.csv", index=False)
+    kruskal_df.to_csv(tables_dir / "kruskal_wallis_report.csv", index=False)
+    cramers_df.to_csv(tables_dir / "cramers_v_report.csv", index=False)
+
+    discrepancy_social_screen = int((df["Social_Media_Hours"] > df["Screen_Time_Hours"]).sum())
+    age_17_count = int((df["Age"] == 17).sum())
+
+    summary = {
+        "dataset_shape": {"rows": int(df.shape[0]), "columns": int(df.shape[1])},
+        "exact_duplicates": int(duplicate_report.get("exact_duplicates", 0)),
+        "duplicate_ids": int(duplicate_report.get("duplicate_ids", 0)),
+        "target_distribution": {k: int(v) for k, v in target_report.get("class_counts", {}).items()},
+        "top_vif_features": vif_df.head(3).to_dict(orient="records"),

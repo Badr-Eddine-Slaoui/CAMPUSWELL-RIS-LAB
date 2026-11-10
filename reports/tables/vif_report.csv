@@ -1,0 +1,11 @@
+feature,vif,r_squared
+Study_Hours_Per_Week,2.6223,0.6187
+Social_Media_Hours,2.2158,0.5487
+Year_of_Study,1.9472,0.4865
+Screen_Time_Hours,1.8813,0.4685
+GPA,1.5281,0.3456
+Attendance_Rate,1.0933,0.0853
+Sleep_Hours,1.086,0.0792
+Family_Support,1.0086,0.0086
+Financial_Stress,1.0067,0.0066
+Age,1.0016,0.0016

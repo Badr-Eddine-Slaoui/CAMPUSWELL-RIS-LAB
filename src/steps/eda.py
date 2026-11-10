@@ -206,3 +206,29 @@ def generate_eda_report(df: pd.DataFrame, tables_dir: Path = REPORTS_TABLES_DIR,
         "duplicate_ids": int(duplicate_report.get("duplicate_ids", 0)),
         "target_distribution": {k: int(v) for k, v in target_report.get("class_counts", {}).items()},
         "top_vif_features": vif_df.head(3).to_dict(orient="records"),
+        "top_kruskal_separators": kruskal_df.head(5).to_dict(orient="records"),
+        "top_categorical_associations": cramers_df.to_dict(orient="records"),
+        "survey_self_reporting_inconsistencies": {
+            "social_media_exceeds_screen_time_count": discrepancy_social_screen,
+            "students_age_17_count": age_17_count
+        }
+    }
+    with open(metrics_dir / "eda_statistical_summary.json", "w") as f:
+        json.dump(summary, f, indent=2)
+
+    logger.info("Comprehensive EDA statistical artifacts exported.")
+    return summary
+
+
+def pipeline() -> dict:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s — %(levelname)s — %(message)s")
+    logger.info("=== Advanced EDA Pipeline Started ===")
+
+    df = load_and_inspect()
+    generate_eda_figures(df)
+    summary = generate_eda_report(df)
+
+    logger.info("=== Advanced EDA Pipeline Completed ===")
+    return {"status": "completed", "summary": summary}
+
+

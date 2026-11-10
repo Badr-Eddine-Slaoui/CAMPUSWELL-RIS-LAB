@@ -1,0 +1,93 @@
+{
+  "dataset_shape": {
+    "rows": 2000,
+    "columns": 17
+  },
+  "exact_duplicates": 0,
+  "duplicate_ids": 0,
+  "target_distribution": {
+    "High": 680,
+    "Medium": 660,
+    "Low": 660
+  },
+  "top_vif_features": [
+    {
+      "feature": "Study_Hours_Per_Week",
+      "vif": 2.6223,
+      "r_squared": 0.6187
+    },
+    {
+      "feature": "Social_Media_Hours",
+      "vif": 2.2158,
+      "r_squared": 0.5487
+    },
+    {
+      "feature": "Year_of_Study",
+      "vif": 1.9472,
+      "r_squared": 0.4865
+    }
+  ],
+  "top_kruskal_separators": [
+    {
+      "feature": "Sleep_Hours",
+      "kruskal_stat": 568.0632,
+      "p_value": 4.432355513766709e-124
+    },
+    {
+      "feature": "GPA",
+      "kruskal_stat": 233.8394,
+      "p_value": 1.6688301755791927e-51
+    },
+    {
+      "feature": "Financial_Stress",
+      "kruskal_stat": 185.9955,
+      "p_value": 4.088826640309007e-41
+    },
+    {
+      "feature": "Family_Support",
+      "kruskal_stat": 121.853,
+      "p_value": 3.46708211536065e-27
+    },
+    {
+      "feature": "Study_Hours_Per_Week",
+      "kruskal_stat": 115.3038,
+      "p_value": 9.164213305189819e-26
+    }
+  ],
+  "top_categorical_associations": [
+    {
+      "categorical_feature": "Previous_Mental_Health_History",
+      "chi2": 117.5761,
+      "p_value": 2.9422226110320265e-26,
+      "cramers_v": 0.2425
+    },
+    {
+      "categorical_feature": "Physical_Activity",
+      "chi2": 111.9077,
+      "p_value": 2.8514528225111195e-23,
+      "cramers_v": 0.1673
+    },
+    {
+      "categorical_feature": "Part_Time_Job",
+      "chi2": 26.6999,
+      "p_value": 1.5928674824410276e-06,
+      "cramers_v": 0.1155
+    },
+    {
+      "categorical_feature": "Diet_Quality",
+      "chi2": 48.8943,
+      "p_value": 6.142963292011853e-10,
+      "cramers_v": 0.1125
+    },
+    {
+      "categorical_feature": "Gender",
+      "chi2": 5.1028,
+      "p_value": 0.2769132174067011,
+      "cramers_v": 0.0357
+    }
+  ],
+  "survey_self_reporting_inconsistencies": {
+    "social_media_exceeds_screen_time_count": 37,
+    "students_age_17_count": 93
+  }
+}

@@ -148,3 +148,38 @@ def generate_eda_figures(df: pd.DataFrame, figures_dir: Path = REPORTS_FIGURES_D
     plt.tight_layout()
     save_figure(fig, figures_dir / "numerical_distributions.png")
     plt.close(fig)
+
+    fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(20, 8))
+    axes = axes.flatten()
+    for i, col in enumerate(numeric_cols[:10]):
+        sns.boxplot(data=df, x=TARGET_COLUMN, y=col, order=["Low", "Medium", "High"], palette="Set2", ax=axes[i], hue=TARGET_COLUMN, legend=False)
+        axes[i].set_title(col, fontsize=11, fontweight="bold")
+        axes[i].set_xlabel("Mental Health Risk")
+    plt.tight_layout()
+    save_figure(fig, figures_dir / "features_by_risk_category.png")
+    plt.close(fig)
+
+    cat_cols = ORDINAL_FEATURES + BINARY_FEATURES
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(14, 10))
+    axes = axes.flatten()
+    for i, col in enumerate(cat_cols[:4]):
+        ct = pd.crosstab(df[col], df[TARGET_COLUMN], normalize="index")[["Low", "Medium", "High"]] * 100
+        ct.plot(kind="bar", stacked=True, ax=axes[i], colormap="viridis", edgecolor="black")
+        axes[i].set_title(f"Risk Distribution by {col}", fontsize=11, fontweight="bold")
+        axes[i].set_ylabel("Percentage (%)")
+        axes[i].legend(title="Risk Level")
+        axes[i].tick_params(axis="x", rotation=0)
+    plt.tight_layout()
+    save_figure(fig, figures_dir / "categorical_by_risk.png")
+    plt.close(fig)
+
+    logger.info(f"EDA figures saved to: {figures_dir}")
+
+
+def generate_eda_report(df: pd.DataFrame, tables_dir: Path = REPORTS_TABLES_DIR, metrics_dir: Path = REPORTS_METRICS_DIR) -> dict:
+    tables_dir.mkdir(parents=True, exist_ok=True)
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+
+    missing_report = analyze_missing_values(df)
+    duplicate_report = analyze_duplicates(df)
+    target_report = analyze_target_distribution(df)

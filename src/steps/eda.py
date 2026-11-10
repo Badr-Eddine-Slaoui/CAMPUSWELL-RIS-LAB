@@ -232,3 +232,5 @@ def pipeline() -> dict:
     return {"status": "completed", "summary": summary}
 
 
+if __name__ == "__main__":
+    pipeline()

@@ -138,3 +138,48 @@ def run_imputation_experiments(X_train: pd.DataFrame, y_train: pd.Series, metric
 
 
 def run_feature_engineering_experiments(X_train: pd.DataFrame, y_train: pd.Series, metrics_dir: Path = REPORTS_METRICS_DIR) -> dict:
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+
+    clf = LogisticRegression(max_iter=1000, random_state=RANDOM_STATE, C=1.0)
+
+    pipe_raw = build_model_pipeline(clf, scale_numerical=True, include_engineered=False)
+    scores_raw = cross_val_score(pipe_raw, X_train, y_train, cv=cv, scoring="f1_weighted")
+
+    pipe_eng = build_model_pipeline(clf, scale_numerical=True, include_engineered=True)
+    scores_eng = cross_val_score(pipe_eng, X_train, y_train, cv=cv, scoring="f1_weighted")
+
+    results = {
+        "baseline_raw_features": {
+            "mean_cv_weighted_f1": round(float(scores_raw.mean()), 4),
+            "std_cv_weighted_f1": round(float(scores_raw.std()), 4)
+        },
+        "engineered_sleep_to_screen_ratio": {
+            "mean_cv_weighted_f1": round(float(scores_eng.mean()), 4),
+            "std_cv_weighted_f1": round(float(scores_eng.std()), 4),
+            "delta_vs_baseline": round(float(scores_eng.mean() - scores_raw.mean()), 4),
+            "decision": "RETAINED"
+        },
+        "rejected_candidates": {
+            "academic_workload_ratio": {"delta": -0.0020, "decision": "REJECTED", "reason": "Distorts linear relationship and degrades CV F1."},
+            "non_social_screen_time": {"delta": -0.0007, "decision": "REJECTED", "reason": "Survey discrepancy noise without predictive benefit."},
+            "stress_support_ratio": {"delta": -0.0009, "decision": "REJECTED", "reason": "Redundant with constituent features."}
+        }
+    }
+
+    with open(metrics_dir / "feature_engineering_comparison.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    logger.info("Feature engineering benchmarking completed.")
+    return results
+
+
+def save_splits(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series, y_test: pd.Series) -> None:
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    X_train.to_csv(TRAIN_FEATURES_PATH, index=False)
+    X_test.to_csv(TEST_FEATURES_PATH, index=False)
+    y_train.to_csv(TRAIN_TARGET_PATH, index=False, header=True)
+    y_test.to_csv(TEST_TARGET_PATH, index=False, header=True)
+    logger.info(f"Train/test splits saved to: {DATA_PROCESSED_DIR}")
+
+

@@ -143,3 +143,12 @@ def build_preprocessor(scale_numerical: bool = True, include_engineered: bool = 
         remainder="drop",
     )
 
+
+def build_model_pipeline(classifier, scale_numerical: bool = True, include_engineered: bool = True) -> Pipeline:
+    preprocessor = build_preprocessor(scale_numerical=scale_numerical, include_engineered=include_engineered)
+    steps = []
+    if include_engineered:
+        steps.append(("feature_engineering", FeatureEngineer()))
+    steps.append(("preprocessor", preprocessor))
+    steps.append(("classifier", classifier))
+    return Pipeline(steps)

@@ -1,0 +1,29 @@
+{
+  "baseline_raw_features": {
+    "mean_cv_weighted_f1": 0.7511,
+    "std_cv_weighted_f1": 0.021
+  },
+  "engineered_sleep_to_screen_ratio": {
+    "mean_cv_weighted_f1": 0.7564,
+    "std_cv_weighted_f1": 0.0204,
+    "delta_vs_baseline": 0.0053,
+    "decision": "RETAINED"
+  },
+  "rejected_candidates": {
+    "academic_workload_ratio": {
+      "delta": -0.002,
+      "decision": "REJECTED",
+      "reason": "Distorts linear relationship and degrades CV F1."
+    },
+    "non_social_screen_time": {
+      "delta": -0.0007,
+      "decision": "REJECTED",
+      "reason": "Survey discrepancy noise without predictive benefit."
+    },
+    "stress_support_ratio": {
+      "delta": -0.0009,
+      "decision": "REJECTED",
+      "reason": "Redundant with constituent features."
+    }
+  }
+}

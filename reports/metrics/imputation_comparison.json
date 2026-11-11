@@ -1,0 +1,50 @@
+{
+  "Financial_Stress": {
+    "mean_mae": 1.5301,
+    "median_mae": 1.5311,
+    "knn_mae": 1.6492,
+    "iterative_mae": 1.5292,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  },
+  "Sleep_Hours": {
+    "mean_mae": 0.9038,
+    "median_mae": 0.9059,
+    "knn_mae": 0.923,
+    "iterative_mae": 0.8577,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  },
+  "Social_Media_Hours": {
+    "mean_mae": 0.8784,
+    "median_mae": 0.8753,
+    "knn_mae": 0.6521,
+    "iterative_mae": 0.5889,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  },
+  "Family_Support": {
+    "mean_mae": 1.6133,
+    "median_mae": 1.6174,
+    "knn_mae": 1.7837,
+    "iterative_mae": 1.6144,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  },
+  "Attendance_Rate": {
+    "mean_mae": 5.7367,
+    "median_mae": 5.7353,
+    "knn_mae": 6.3967,
+    "iterative_mae": 5.4781,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  },
+  "GPA": {
+    "mean_mae": 0.2746,
+    "median_mae": 0.2743,
+    "knn_mae": 0.2509,
+    "iterative_mae": 0.2216,
+    "selected_strategy": "median",
+    "justification": "Robust non-parametric stability; negligible difference from iterative while avoiding convergence warnings and multi-collinear regression noise."
+  }
+}

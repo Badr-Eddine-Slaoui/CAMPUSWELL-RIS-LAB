@@ -123,3 +123,23 @@ def build_nominal_pipeline() -> Pipeline:
 def build_binary_pipeline() -> Pipeline:
     return Pipeline([
         ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OrdinalEncoder(
+            categories=[["No", "Yes"], ["No", "Yes"]],
+            handle_unknown="use_encoded_value",
+            unknown_value=np.nan,
+        )),
+    ])
+
+
+def build_preprocessor(scale_numerical: bool = True, include_engineered: bool = True) -> ColumnTransformer:
+    num_features = ENGINEERED_NUMERICAL_FEATURES if include_engineered else NUMERICAL_FEATURES
+    return ColumnTransformer(
+        transformers=[
+            ("numerical", build_numerical_pipeline(scale=scale_numerical), num_features),
+            ("ordinal", build_ordinal_pipeline(), ORDINAL_FEATURES),
+            ("nominal", build_nominal_pipeline(), NOMINAL_FEATURES),
+            ("binary", build_binary_pipeline(), BINARY_FEATURES),
+        ],
+        remainder="drop",
+    )
+

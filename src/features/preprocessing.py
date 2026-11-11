@@ -78,3 +78,48 @@ class ColumnWiseImputer(BaseEstimator, TransformerMixin):
             actual_median = [c for c in self.median_cols if c in X_df.columns]
             if actual_median:
                 X_df[actual_median] = self.median_imputer.transform(X_df[actual_median])
+
+        if self.iterative_imputer and self.iterative_cols:
+            actual_it = [c for c in self.iterative_cols if c in X_df.columns]
+            if actual_it:
+                X_df[actual_it] = self.iterative_imputer.transform(X_df[actual_it])
+
+        return X_df
+
+
+def build_numerical_pipeline(strategy: str = "median", scale: bool = True) -> Pipeline:
+    steps = [("imputer", SimpleImputer(strategy=strategy))]
+    if scale:
+        steps.append(("scaler", StandardScaler()))
+    return Pipeline(steps)
+
+
+def build_ordinal_pipeline() -> Pipeline:
+    ordinal_categories = [
+        PHYSICAL_ACTIVITY_ORDER,
+        DIET_QUALITY_ORDER,
+    ]
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OrdinalEncoder(
+            categories=ordinal_categories,
+            handle_unknown="use_encoded_value",
+            unknown_value=np.nan,
+        )),
+    ])
+
+
+def build_nominal_pipeline() -> Pipeline:
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("encoder", OneHotEncoder(
+            drop="first",
+            sparse_output=False,
+            handle_unknown="ignore",
+        )),
+    ])
+
+
+def build_binary_pipeline() -> Pipeline:
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),

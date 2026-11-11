@@ -1,0 +1,5 @@
+model,mean_accuracy,std_accuracy,mean_weighted_f1,std_weighted_f1,mean_macro_f1,std_macro_f1,mean_weighted_precision,std_weighted_precision,mean_weighted_recall,std_weighted_recall,mean_roc_auc_ovr,std_roc_auc_ovr
+Logistic Regression,0.7563,0.0204,0.7564,0.0204,0.7558,0.0203,0.7579,0.0208,0.7563,0.0204,0.9063,0.0084
+HistGradientBoosting,0.685,0.0142,0.6842,0.012,0.6833,0.012,0.685,0.0112,0.685,0.0142,0.8587,0.0122
+XGBoost,0.6787,0.0221,0.6788,0.021,0.6779,0.0211,0.68,0.0201,0.6787,0.0221,0.8538,0.0142
+Random Forest,0.6738,0.0328,0.6709,0.0316,0.67,0.0316,0.6702,0.0316,0.6738,0.0328,0.8438,0.0158

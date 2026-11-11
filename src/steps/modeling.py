@@ -109,3 +109,39 @@ def run_cross_validation(
     return results
 
 
+def build_comparison_dataframe(cv_results: dict) -> pd.DataFrame:
+    rows = []
+    for model_name, metrics in cv_results.items():
+        row = {"model": model_name}
+        for metric_key, stats in metrics.items():
+            short_key = metric_key.replace("test_", "mean_")
+            row[short_key] = round(stats["mean"], 4)
+            row[short_key.replace("mean_", "std_")] = round(stats["std"], 4)
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values("mean_weighted_f1", ascending=False)
+
+
+def select_candidate_models(comparison_df: pd.DataFrame, top_n: int = 2) -> list:
+    candidates = comparison_df.nlargest(top_n, "mean_weighted_f1")["model"].tolist()
+    logger.info(f"Selected candidates for optimization: {candidates}")
+    return candidates
+
+
+def save_baseline_results(cv_results: dict, comparison_df: pd.DataFrame, candidates: list) -> None:
+    BASELINE_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    payload = {
+        "cv_results": cv_results,
+        "comparison_table": comparison_df.to_dict(orient="records"),
+        "selected_candidates": candidates,
+    }
+    save_metrics(payload, BASELINE_RESULTS_PATH)
+
+    comparison_df.to_csv(BASELINE_RESULTS_PATH.parent / "baseline_comparison_table.csv", index=False)
+
+    REPORTS_FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    fig = plot_model_comparison(comparison_df, metric="mean_weighted_f1")
+    save_figure(fig, REPORTS_FIGURES_DIR / "baseline_model_comparison.png")
+    logger.info("Baseline results and figures saved.")
+
+

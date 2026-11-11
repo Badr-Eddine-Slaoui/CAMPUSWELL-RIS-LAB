@@ -183,3 +183,37 @@ def save_splits(X_train: pd.DataFrame, X_test: pd.DataFrame, y_train: pd.Series,
     logger.info(f"Train/test splits saved to: {DATA_PROCESSED_DIR}")
 
 
+def load_splits() -> tuple:
+    X_train = pd.read_csv(TRAIN_FEATURES_PATH)
+    X_test = pd.read_csv(TEST_FEATURES_PATH)
+    y_train = pd.read_csv(TRAIN_TARGET_PATH).squeeze()
+    y_test = pd.read_csv(TEST_TARGET_PATH).squeeze()
+    logger.info(f"Splits loaded. Train: {X_train.shape}, Test: {X_test.shape}")
+    return X_train, X_test, y_train, y_test
+
+
+def pipeline() -> dict:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s — %(levelname)s — %(message)s")
+    logger.info("=== Preprocessing Pipeline Started ===")
+
+    df = load_raw_data()
+    df = drop_identifier(df)
+    X, y = separate_features_target(df)
+    X_train, X_test, y_train, y_test = split_dataset(X, y)
+    save_splits(X_train, X_test, y_train, y_test)
+
+    imputation_summary = run_imputation_experiments(X_train, y_train)
+    fe_summary = run_feature_engineering_experiments(X_train, y_train)
+
+    logger.info("=== Preprocessing Pipeline Completed ===")
+    return {
+        "status": "completed",
+        "train_size": len(X_train),
+        "test_size": len(X_test),
+        "imputation_summary": imputation_summary,
+        "feature_engineering_summary": fe_summary
+    }
+
+
+if __name__ == "__main__":
+    pipeline()

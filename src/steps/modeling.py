@@ -67,3 +67,45 @@ def define_baseline_classifiers() -> dict:
     }
 
 
+def run_cross_validation(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    classifiers: dict,
+    cv_folds: int = CV_FOLDS,
+) -> dict:
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=RANDOM_STATE)
+    results = {}
+
+    le = LabelEncoder()
+    le.fit(TARGET_CLASSES)
+
+    for name, config in classifiers.items():
+        logger.info(f"Cross-validating: {name}")
+        pipeline = build_model_pipeline(
+            config["classifier"],
+            scale_numerical=config["scale_numerical"],
+            include_engineered=True,
+        )
+
+        if name == "XGBoost":
+            y_encoded = pd.Series(le.transform(y_train), index=y_train.index)
+            cv_res = cross_validate(
+                pipeline, X_train, y_encoded,
+                cv=cv, scoring=SCORING, return_train_score=False, n_jobs=-1,
+            )
+        else:
+            cv_res = cross_validate(
+                pipeline, X_train, y_train,
+                cv=cv, scoring=SCORING, return_train_score=False, n_jobs=-1,
+            )
+
+        summary = cross_val_metrics_summary(cv_res)
+        results[name] = summary
+        logger.info(
+            f"{name} — Weighted F1: {summary['test_weighted_f1']['mean']:.4f} "
+            f"(±{summary['test_weighted_f1']['std']:.4f}), ROC-AUC: {summary['test_roc_auc_ovr']['mean']:.4f}"
+        )
+
+    return results
+
+

@@ -145,3 +145,26 @@ def save_baseline_results(cv_results: dict, comparison_df: pd.DataFrame, candida
     logger.info("Baseline results and figures saved.")
 
 
+def pipeline() -> dict:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s — %(levelname)s — %(message)s")
+    logger.info("=== Modeling Pipeline Started ===")
+
+    X_train, X_test, y_train, y_test = load_splits()
+    classifiers = define_baseline_classifiers()
+    cv_results = run_cross_validation(X_train, y_train, classifiers)
+    comparison_df = build_comparison_dataframe(cv_results)
+    candidates = select_candidate_models(comparison_df)
+    save_baseline_results(cv_results, comparison_df, candidates)
+
+    logger.info("=== Modeling Pipeline Completed ===")
+    return {
+        "status": "completed",
+        "models_evaluated": list(classifiers.keys()),
+        "selected_candidates": candidates,
+        "best_model": comparison_df.iloc[0]["model"],
+        "best_weighted_f1": comparison_df.iloc[0]["mean_weighted_f1"],
+    }
+
+
+if __name__ == "__main__":
+    pipeline()

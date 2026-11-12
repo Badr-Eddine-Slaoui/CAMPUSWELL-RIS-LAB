@@ -257,3 +257,143 @@ def page_model_performance():
         st.dataframe(params_df, use_container_width=True)
 
 
+def page_prediction_playground():
+    st.title("🎮 Prediction Playground")
+    render_disclaimer()
+
+    st.markdown(
+        "Enter values for a hypothetical student profile and the trained model will predict "
+        "their **synthetic** mental health risk category.\n\n"
+        "> ⚠️ This is an educational simulation only. These predictions must not be used "
+        "> for any real diagnostic, clinical, or administrative purposes."
+    )
+
+    pipeline = load_pipeline_cached()
+    if pipeline is None:
+        st.warning(
+            "The trained model is not yet available. "
+            "Please complete the full pipeline execution first."
+        )
+        return
+
+    with st.form("prediction_form"):
+        st.subheader("Student Profile")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            age = st.number_input("Age", min_value=17, max_value=35, value=21, step=1)
+            gender = st.selectbox("Gender", ["Male", "Female", "Non-binary"])
+            year_of_study = st.number_input("Year of Study", min_value=1, max_value=5, value=2, step=1)
+            sleep_hours = st.slider("Sleep Hours (nightly)", min_value=3.0, max_value=12.0, value=7.0, step=0.5)
+            study_hours = st.slider("Study Hours Per Week", min_value=0.0, max_value=60.0, value=20.0, step=0.5)
+
+        with col2:
+            gpa = st.slider("GPA (4.0 scale)", min_value=0.0, max_value=4.0, value=2.7, step=0.01)
+            social_media = st.slider("Social Media Hours (daily)", min_value=0.0, max_value=15.0, value=5.0, step=0.5)
+            screen_time = st.slider("Screen Time Hours (daily)", min_value=0.0, max_value=20.0, value=8.0, step=0.5)
+            physical_activity = st.selectbox("Physical Activity", PHYSICAL_ACTIVITY_ORDER)
+            financial_stress = st.slider("Financial Stress (1–10)", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+
+        with col3:
+            family_support = st.slider("Family Support (1–10)", min_value=1.0, max_value=10.0, value=6.0, step=0.5)
+            attendance_rate = st.slider("Attendance Rate (%)", min_value=30.0, max_value=100.0, value=85.0, step=0.5)
+            part_time_job = st.selectbox("Part-Time Job", ["No", "Yes"])
+            diet_quality = st.selectbox("Diet Quality", DIET_QUALITY_ORDER)
+            prev_mental_health = st.selectbox("Previous Mental Health History", ["No", "Yes"])
+
+        submitted = st.form_submit_button("Predict Risk Category", type="primary")
+
+    if submitted:
+        input_data = pd.DataFrame([{
+            "Age": float(age),
+            "Gender": gender,
+            "Year_of_Study": float(year_of_study),
+            "Sleep_Hours": float(sleep_hours),
+            "Study_Hours_Per_Week": float(study_hours),
+            "GPA": float(gpa),
+            "Social_Media_Hours": float(social_media),
+            "Screen_Time_Hours": float(screen_time),
+            "Physical_Activity": physical_activity,
+            "Financial_Stress": float(financial_stress),
+            "Family_Support": float(family_support),
+            "Attendance_Rate": float(attendance_rate),
+            "Part_Time_Job": part_time_job,
+            "Diet_Quality": diet_quality,
+            "Previous_Mental_Health_History": prev_mental_health,
+        }])
+
+        try:
+            prediction = pipeline.predict(input_data)
+            predicted_class = str(prediction[0])
+
+            if hasattr(pipeline, "predict_proba"):
+                probabilities = pipeline.predict_proba(input_data)[0]
+                classes = pipeline.classes_
+            else:
+                probabilities = None
+                classes = None
+
+            st.divider()
+            st.subheader("Prediction Result")
+
+            color_map = {"Low": "🟢", "Medium": "🟡", "High": "🔴"}
+            emoji = color_map.get(predicted_class, "⚪")
+
+            st.markdown(f"### {emoji} Predicted Risk Category: **{predicted_class}**")
+
+            if probabilities is not None and classes is not None:
+                st.subheader("Class Probabilities")
+                proba_df = pd.DataFrame({
+                    "Risk Category": [str(c) for c in classes],
+                    "Probability": probabilities,
+                })
+                fig = px.bar(
+                    proba_df, x="Risk Category", y="Probability",
+                    color="Risk Category",
+                    color_discrete_map={"Low": "#2ecc71", "Medium": "#f39c12", "High": "#e74c3c"},
+                    title="Prediction Probability by Risk Category",
+                )
+                fig.update_layout(yaxis_range=[0, 1])
+                st.plotly_chart(fig, use_container_width=True)
+
+            st.info(
+                "🔬 **Reminder:** This prediction is generated from a model trained on "
+                "**synthetic data** and is for **educational demonstration only**. "
+                "It is not a clinical assessment and should never be used to make "
+                "decisions about a real student's mental health."
+            )
+
+        except Exception as exc:
+            st.error(f"Prediction failed: {exc}")
+
+
+def main():
+    st.set_page_config(
+        page_title="CampusWell RiskLab",
+        page_icon="🧠",
+        layout="wide",
+        initial_sidebar_state="expanded",
+    )
+
+    st.sidebar.title("🧠 CampusWell RiskLab")
+    st.sidebar.markdown("---")
+
+    pages = {
+        "🏠 Overview": page_overview,
+        "📊 Exploratory Data Analysis": page_eda,
+        "🏆 Model Performance": page_model_performance,
+        "🎮 Prediction Playground": page_prediction_playground,
+    }
+
+    selected_page = st.sidebar.radio("Navigation", list(pages.keys()))
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**Project:** YouCode 2026–2027")
+    st.sidebar.markdown("**Dataset:** Synthetic — Educational Only")
+
+    pages[selected_page]()
+
+
+if __name__ == "__main__":
+    main()
+

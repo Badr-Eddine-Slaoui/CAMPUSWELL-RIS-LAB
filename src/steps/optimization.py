@@ -207,3 +207,29 @@ def run_grid_search(
     return search
 
 
+def compare_with_baseline(candidates: list, optimized_results: dict) -> pd.DataFrame:
+    baseline_data = load_metrics(BASELINE_RESULTS_PATH)
+    baseline_cv = baseline_data.get("cv_results", {})
+    rows = []
+    for name in candidates:
+        baseline_f1 = baseline_cv.get(name, {}).get("test_weighted_f1", {}).get("mean", None)
+        opt = optimized_results.get(name, {})
+        rows.append({
+            "model": name,
+            "baseline_cv_weighted_f1": baseline_f1,
+            "optimized_cv_weighted_f1": opt.get("best_cv_score"),
+            "best_params": opt.get("best_params"),
+            "improvement": (
+                opt.get("best_cv_score") - baseline_f1
+                if baseline_f1 and opt.get("best_cv_score") else None
+            ),
+        })
+    return pd.DataFrame(rows)
+
+
+def select_production_candidate(comparison_df: pd.DataFrame) -> str:
+    best = comparison_df.loc[comparison_df["optimized_cv_weighted_f1"].idxmax(), "model"]
+    logger.info(f"Production candidate selected: {best}")
+    return best
+
+

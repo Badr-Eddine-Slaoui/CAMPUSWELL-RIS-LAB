@@ -1,0 +1,21 @@
+{
+  "model_name": "Logistic Regression",
+  "best_hyperparameters": {
+    "classifier__C": 1.0,
+    "classifier__max_iter": 1000,
+    "classifier__solver": "lbfgs"
+  },
+  "optimized_cv_weighted_f1": 0.7563615636589403,
+  "test_weighted_f1": 0.7556727991110015,
+  "test_macro_f1": 0.7550918494738719,
+  "test_accuracy": 0.755,
+  "test_roc_auc_ovr": 0.9129306592039801,
+  "target_classes": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "training_date": "2026-11-13T09:36:07.718893",
+  "total_errors": 98,
+  "total_test_samples": 400
+}

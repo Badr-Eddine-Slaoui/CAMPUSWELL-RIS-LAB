@@ -66,3 +66,45 @@ def render_disclaimer():
     st.warning(DISCLAIMER)
 
 
+def page_overview():
+    st.title("🧠 CampusWell RiskLab")
+    st.subheader("Student Mental Health Risk Analysis & Prediction")
+
+    render_disclaimer()
+
+    st.markdown(
+        "**CampusWell RiskLab** is an end-to-end Machine Learning classification project that analyzes "
+        "student academic, behavioral, lifestyle, and psychosocial indicators to classify their "
+        "**synthetic** mental health risk level into three categories: **Low**, **Medium**, and **High**.\n\n"
+        "This project was developed as a YouCode assignment to demonstrate the complete ML workflow: "
+        "Data → EDA → Preprocessing → Modeling → Optimization → Evaluation → Deployment."
+    )
+
+    df = load_dataset_cached()
+    if df is not None:
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total Records", f"{len(df):,}")
+        with col2:
+            st.metric("Features", str(len(df.columns) - 2))
+        with col3:
+            st.metric("Target Classes", "3")
+        with col4:
+            st.metric("Missing Values", f"{df.isnull().sum().sum():,}")
+
+        st.subheader("Target Class Distribution")
+        counts = df["Mental_Health_Risk"].value_counts().reset_index()
+        counts.columns = ["Risk Category", "Count"]
+        counts["Percentage"] = (counts["Count"] / counts["Count"].sum() * 100).round(1)
+        fig = px.pie(
+            counts, names="Risk Category", values="Count",
+            color_discrete_sequence=px.colors.qualitative.Set2,
+            title="Mental Health Risk Distribution",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.dataframe(counts, use_container_width=True)
+    else:
+        st.error(f"Dataset not found at: `{DATA_PATH}`. Please follow the instructions in `data/README.md`.")
+
+

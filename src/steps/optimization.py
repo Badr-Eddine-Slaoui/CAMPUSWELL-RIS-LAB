@@ -233,3 +233,45 @@ def select_production_candidate(comparison_df: pd.DataFrame) -> str:
     return best
 
 
+def pipeline() -> dict:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s — %(levelname)s — %(message)s")
+    logger.info("=== Optimization Pipeline Started ===")
+
+    X_train, X_test, y_train, y_test = load_splits()
+    candidates = load_baseline_candidates()
+    optimized_results = {}
+
+    for name in candidates:
+        logger.info(f"--- Optimizing: {name} ---")
+        random_search = run_randomized_search(name, X_train, y_train)
+        grid_search = run_grid_search(name, X_train, y_train, random_search.best_params_)
+        optimized_results[name] = {
+            "random_search_best_score": float(random_search.best_score_),
+            "best_cv_score": float(grid_search.best_score_),
+            "best_params": grid_search.best_params_,
+        }
+
+    comparison_df = compare_with_baseline(candidates, optimized_results)
+    production_candidate = select_production_candidate(comparison_df)
+
+    payload = {
+        "optimized_results": optimized_results,
+        "comparison_table": comparison_df.to_dict(orient="records"),
+        "selected_production_candidate": production_candidate,
+    }
+    save_metrics(payload, OPTIMIZATION_RESULTS_PATH)
+    comparison_df.to_csv(
+        OPTIMIZATION_RESULTS_PATH.parent / "optimization_comparison_table.csv", index=False
+    )
+
+    logger.info("=== Optimization Pipeline Completed ===")
+    return {
+        "status": "completed",
+        "candidates_optimized": candidates,
+        "production_candidate": production_candidate,
+        "comparison": comparison_df.to_dict(orient="records"),
+    }
+
+
+if __name__ == "__main__":
+    pipeline()

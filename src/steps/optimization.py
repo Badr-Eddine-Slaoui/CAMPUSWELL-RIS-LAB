@@ -170,3 +170,40 @@ def run_randomized_search(
     return search
 
 
+def run_grid_search(
+    model_name: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    best_params: dict,
+) -> GridSearchCV:
+    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+    scale = model_name == "Logistic Regression"
+    pipeline = build_model_pipeline(_make_base_classifier(model_name), scale_numerical=scale)
+
+    if _needs_label_encoding(model_name):
+        le = LabelEncoder()
+        le.fit(TARGET_CLASSES)
+        y_fit = pd.Series(le.transform(y_train), index=y_train.index)
+    else:
+        y_fit = y_train
+
+    grid = get_grid_params(model_name, best_params)
+    start = time.time()
+    search = GridSearchCV(
+        pipeline,
+        param_grid=grid,
+        cv=cv,
+        scoring=PRIMARY_METRIC,
+        refit=True,
+        n_jobs=-1,
+        verbose=0,
+    )
+    search.fit(X_train, y_fit)
+    elapsed = time.time() - start
+    logger.info(
+        f"[{model_name}] GridSearchCV done in {elapsed:.1f}s — "
+        f"Best CV {PRIMARY_METRIC}: {search.best_score_:.4f}"
+    )
+    return search
+
+

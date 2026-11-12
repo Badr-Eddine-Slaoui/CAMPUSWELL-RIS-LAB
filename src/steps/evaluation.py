@@ -88,3 +88,18 @@ def _build_production_pipeline(model_name: str, best_params: dict):
     raise ValueError(f"Unknown model: {model_name}")
 
 
+def train_final_pipeline(model_name: str, best_params: dict, X_train: pd.DataFrame, y_train: pd.Series):
+    production_pipeline = _build_production_pipeline(model_name, best_params)
+
+    if model_name == "XGBoost":
+        le = LabelEncoder()
+        le.fit(TARGET_CLASSES)
+        y_fit = pd.Series(le.transform(y_train), index=y_train.index)
+    else:
+        y_fit = y_train
+
+    logger.info(f"Training final pipeline: {model_name}")
+    production_pipeline.fit(X_train, y_fit)
+    return production_pipeline
+
+

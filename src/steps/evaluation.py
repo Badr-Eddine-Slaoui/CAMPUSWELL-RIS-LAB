@@ -103,3 +103,25 @@ def train_final_pipeline(model_name: str, best_params: dict, X_train: pd.DataFra
     return production_pipeline
 
 
+def evaluate_on_test_set(pipeline, model_name: str, X_test: pd.DataFrame, y_test: pd.Series):
+    if model_name == "XGBoost":
+        le = LabelEncoder()
+        le.fit(TARGET_CLASSES)
+        y_pred_encoded = pipeline.predict(X_test)
+        y_pred = le.inverse_transform(y_pred_encoded)
+        try:
+            y_proba = pipeline.predict_proba(X_test)
+        except Exception:
+            y_proba = None
+    else:
+        y_pred = pipeline.predict(X_test)
+        try:
+            y_proba = pipeline.predict_proba(X_test)
+        except Exception:
+            y_proba = None
+
+    metrics = compute_classification_metrics(y_test, y_pred, y_proba)
+    logger.info(f"Final test evaluation — Weighted F1: {metrics['weighted_f1']:.4f}")
+    return metrics, y_pred
+
+

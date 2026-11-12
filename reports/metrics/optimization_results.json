@@ -1,0 +1,51 @@
+{
+  "optimized_results": {
+    "Logistic Regression": {
+      "random_search_best_score": 0.7563615636589403,
+      "best_cv_score": 0.7563615636589403,
+      "best_params": {
+        "classifier__C": 1.0,
+        "classifier__max_iter": 1000,
+        "classifier__solver": "lbfgs"
+      }
+    },
+    "HistGradientBoosting": {
+      "random_search_best_score": 0.6876120019402677,
+      "best_cv_score": 0.6876120019402677,
+      "best_params": {
+        "classifier__l2_regularization": 10.0,
+        "classifier__learning_rate": 0.05,
+        "classifier__max_iter": 200,
+        "classifier__max_leaf_nodes": 31,
+        "classifier__min_samples_leaf": 10
+      }
+    }
+  },
+  "comparison_table": [
+    {
+      "model": "Logistic Regression",
+      "baseline_cv_weighted_f1": 0.7563615636589403,
+      "optimized_cv_weighted_f1": 0.7563615636589403,
+      "best_params": {
+        "classifier__C": 1.0,
+        "classifier__max_iter": 1000,
+        "classifier__solver": "lbfgs"
+      },
+      "improvement": 0.0
+    },
+    {
+      "model": "HistGradientBoosting",
+      "baseline_cv_weighted_f1": 0.6841765549152982,
+      "optimized_cv_weighted_f1": 0.6876120019402677,
+      "best_params": {
+        "classifier__l2_regularization": 10.0,
+        "classifier__learning_rate": 0.05,
+        "classifier__max_iter": 200,
+        "classifier__max_leaf_nodes": 31,
+        "classifier__min_samples_leaf": 10
+      },
+      "improvement": 0.0034354470249695623
+    }
+  ],
+  "selected_production_candidate": "Logistic Regression"
+}

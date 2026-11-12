@@ -125,3 +125,21 @@ def evaluate_on_test_set(pipeline, model_name: str, X_test: pd.DataFrame, y_test
     return metrics, y_pred
 
 
+def analyze_errors(X_test: pd.DataFrame, y_test: pd.Series, y_pred: np.ndarray) -> pd.DataFrame:
+    error_df = X_test.copy()
+    error_df["true_label"] = y_test.values
+    error_df["predicted_label"] = y_pred
+    error_df["is_error"] = error_df["true_label"] != error_df["predicted_label"]
+    errors = error_df[error_df["is_error"]].copy()
+    logger.info(f"Total misclassified samples: {len(errors)} / {len(X_test)}")
+    logger.info(f"Error breakdown:\n{errors.groupby(['true_label', 'predicted_label']).size()}")
+    return errors
+
+
+def generate_evaluation_figures(test_metrics: dict, y_pred: np.ndarray) -> None:
+    REPORTS_FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    cm = np.array(test_metrics["confusion_matrix"])
+    fig = plot_confusion_matrix(cm, class_names=TARGET_CLASSES)
+    save_figure(fig, REPORTS_FIGURES_DIR / "final_confusion_matrix.png")
+
+

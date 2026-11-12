@@ -178,3 +178,82 @@ def page_eda():
     st.dataframe(df[num_cols].describe().T.round(3), use_container_width=True)
 
 
+def page_model_performance():
+    st.title("🏆 Model Performance")
+    render_disclaimer()
+
+    metadata = load_json_metrics(MODEL_METADATA_PATH)
+    final_metrics = load_json_metrics(FINAL_METRICS_PATH)
+    baseline_results = load_json_metrics(BASELINE_RESULTS_PATH)
+    opt_results = load_json_metrics(OPTIMIZATION_RESULTS_PATH)
+
+    if metadata is None or final_metrics is None:
+        st.warning(
+            "Model evaluation results not yet available. "
+            "Please run the complete pipeline first by executing the four notebooks "
+            "in order, or running `src/steps/evaluation.py`."
+        )
+        return
+
+    st.subheader(f"Production Model: **{metadata['model_name']}**")
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Test Accuracy", f"{final_metrics['accuracy']:.4f}")
+    with col2:
+        st.metric("Weighted F1", f"{final_metrics['weighted_f1']:.4f}")
+    with col3:
+        st.metric("Macro F1", f"{final_metrics['macro_f1']:.4f}")
+    with col4:
+        if "roc_auc_ovr" in final_metrics:
+            st.metric("ROC-AUC (OvR)", f"{final_metrics['roc_auc_ovr']:.4f}")
+
+    if baseline_results and opt_results:
+        st.subheader("Baseline vs. Optimized Comparison")
+        comparison_data = opt_results.get("comparison_table", [])
+        if comparison_data:
+            comp_df = pd.DataFrame(comparison_data)
+            st.dataframe(comp_df, use_container_width=True)
+
+    st.subheader("Classification Report")
+    cls_report = final_metrics.get("classification_report", {})
+    if cls_report:
+        report_rows = []
+        for label, stats in cls_report.items():
+            if isinstance(stats, dict):
+                report_rows.append({
+                    "Class": label,
+                    "Precision": round(stats.get("precision", 0), 4),
+                    "Recall": round(stats.get("recall", 0), 4),
+                    "F1-Score": round(stats.get("f1-score", 0), 4),
+                    "Support": int(stats.get("support", 0)),
+                })
+        if report_rows:
+            st.dataframe(pd.DataFrame(report_rows), use_container_width=True)
+
+    st.subheader("Confusion Matrix")
+    cm = final_metrics.get("confusion_matrix")
+    if cm:
+        cm_array = np.array(cm)
+        fig = go.Figure(data=go.Heatmap(
+            z=cm_array,
+            x=TARGET_CLASSES,
+            y=TARGET_CLASSES,
+            colorscale="Blues",
+            text=cm_array,
+            texttemplate="%{text}",
+        ))
+        fig.update_layout(
+            title="Confusion Matrix — Final Test Set",
+            xaxis_title="Predicted Label",
+            yaxis_title="True Label",
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("Best Hyperparameters")
+    best_params = metadata.get("best_hyperparameters", {})
+    if best_params:
+        params_df = pd.DataFrame(list(best_params.items()), columns=["Parameter", "Value"])
+        st.dataframe(params_df, use_container_width=True)
+
+

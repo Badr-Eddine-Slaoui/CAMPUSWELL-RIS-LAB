@@ -143,3 +143,53 @@ def generate_evaluation_figures(test_metrics: dict, y_pred: np.ndarray) -> None:
     save_figure(fig, REPORTS_FIGURES_DIR / "final_confusion_matrix.png")
 
 
+def pipeline() -> dict:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s — %(levelname)s — %(message)s")
+    logger.info("=== Evaluation Pipeline Started ===")
+
+    X_train, X_test, y_train, y_test = load_splits()
+    opt_results = load_optimization_results()
+
+    production_candidate = opt_results["selected_production_candidate"]
+    best_params = opt_results["optimized_results"][production_candidate]["best_params"]
+    optimized_cv_f1 = opt_results["optimized_results"][production_candidate]["best_cv_score"]
+
+    logger.info(f"Production candidate: {production_candidate}")
+    logger.info(f"Best params: {best_params}")
+
+    final_pipeline = train_final_pipeline(production_candidate, best_params, X_train, y_train)
+    test_metrics, y_pred = evaluate_on_test_set(final_pipeline, production_candidate, X_test, y_test)
+    errors = analyze_errors(X_test, y_test, y_pred)
+    generate_evaluation_figures(test_metrics, y_pred)
+
+    save_pipeline(final_pipeline, MODEL_PATH)
+
+    metadata = {
+        "model_name": production_candidate,
+        "best_hyperparameters": best_params,
+        "optimized_cv_weighted_f1": optimized_cv_f1,
+        "test_weighted_f1": test_metrics["weighted_f1"],
+        "test_macro_f1": test_metrics["macro_f1"],
+        "test_accuracy": test_metrics["accuracy"],
+        "test_roc_auc_ovr": test_metrics.get("roc_auc_ovr"),
+        "target_classes": TARGET_CLASSES,
+        "training_date": datetime.datetime.now().isoformat(),
+        "total_errors": len(errors),
+        "total_test_samples": len(X_test),
+    }
+    save_metadata(metadata, MODEL_METADATA_PATH)
+    save_metrics(test_metrics, FINAL_METRICS_PATH)
+
+    logger.info("=== Evaluation Pipeline Completed ===")
+    return {
+        "status": "completed",
+        "production_model": production_candidate,
+        "test_weighted_f1": test_metrics["weighted_f1"],
+        "test_macro_f1": test_metrics["macro_f1"],
+        "test_accuracy": test_metrics["accuracy"],
+        "model_saved_to": str(MODEL_PATH),
+    }
+
+
+if __name__ == "__main__":
+    pipeline()

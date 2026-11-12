@@ -130,3 +130,43 @@ def _needs_label_encoding(model_name: str) -> bool:
     return model_name == "XGBoost"
 
 
+def run_randomized_search(
+    model_name: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    n_iter: int = 15,
+) -> RandomizedSearchCV:
+    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+    scale = model_name == "Logistic Regression"
+    pipeline = build_model_pipeline(_make_base_classifier(model_name), scale_numerical=scale)
+
+    if _needs_label_encoding(model_name):
+        le = LabelEncoder()
+        le.fit(TARGET_CLASSES)
+        y_fit = pd.Series(le.transform(y_train), index=y_train.index)
+    else:
+        y_fit = y_train
+
+    param_distributions = get_param_distributions(model_name)
+    start = time.time()
+    search = RandomizedSearchCV(
+        pipeline,
+        param_distributions=param_distributions,
+        n_iter=n_iter,
+        cv=cv,
+        scoring=PRIMARY_METRIC,
+        refit=True,
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+        verbose=0,
+    )
+    search.fit(X_train, y_fit)
+    elapsed = time.time() - start
+    logger.info(
+        f"[{model_name}] RandomizedSearchCV done in {elapsed:.1f}s — "
+        f"Best CV {PRIMARY_METRIC}: {search.best_score_:.4f}"
+    )
+    logger.info(f"[{model_name}] Best params: {search.best_params_}")
+    return search
+
+

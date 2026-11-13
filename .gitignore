@@ -84,13 +84,3 @@ dmypy.json
 
 # Ruff
 .ruff_cache/
-
-# Project management docs (not part of codebase)
-IMPLEMENTATION_PLAN.md
-ISSUES.md
-TASKS.md
-MODEL_REFINEMENT_*.md
-data/README.md
-
-# Task tracking (Jira export)
-task.csv

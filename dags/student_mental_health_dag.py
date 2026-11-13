@@ -74,3 +74,14 @@ def student_mental_health_dag():
     @task(task_id="evaluation_task")
     def evaluation_task() -> dict:
         from src.steps.evaluation import pipeline as evaluation_pipeline
+        logger.info("Starting Evaluation task...")
+        result = evaluation_pipeline()
+        logger.info(f"Evaluation task completed: {result}")
+        return result
+
+    eda_result = eda_task()
+    preprocessing_result = preprocessing_task()
+    modeling_result = modeling_task()
+    optimization_result = optimization_task()
+    evaluation_result = evaluation_task()
+

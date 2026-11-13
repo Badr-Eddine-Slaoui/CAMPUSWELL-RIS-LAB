@@ -85,3 +85,8 @@ def student_mental_health_dag():
     optimization_result = optimization_task()
     evaluation_result = evaluation_task()
 
+    eda_result >> preprocessing_result >> modeling_result >> optimization_result >> evaluation_result
+
+
+dag_instance = student_mental_health_dag()
+

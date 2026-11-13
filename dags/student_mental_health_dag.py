@@ -36,3 +36,19 @@ DEFAULT_ARGS = {
     default_args=DEFAULT_ARGS,
     tags=["campuswell", "ml", "mental-health", "classification"],
 )
+def student_mental_health_dag():
+
+    @task(task_id="eda_task")
+    def eda_task() -> dict:
+        print("Running EDA task...")
+        from src.steps.eda import pipeline as eda_pipeline
+        logger.info("Starting EDA task...")
+        result = eda_pipeline()
+        logger.info(f"EDA task completed: {result}")
+        return result
+
+    @task(task_id="preprocessing_task")
+    def preprocessing_task() -> dict:
+        from src.steps.preprocessing import pipeline as preprocessing_pipeline
+        logger.info("Starting Preprocessing task...")
+        result = preprocessing_pipeline()

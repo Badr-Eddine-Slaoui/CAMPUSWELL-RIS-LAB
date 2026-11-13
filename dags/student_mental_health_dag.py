@@ -52,3 +52,14 @@ def student_mental_health_dag():
         from src.steps.preprocessing import pipeline as preprocessing_pipeline
         logger.info("Starting Preprocessing task...")
         result = preprocessing_pipeline()
+        logger.info(f"Preprocessing task completed: {result}")
+        return result
+
+    @task(task_id="modeling_task")
+    def modeling_task() -> dict:
+        from src.steps.modeling import pipeline as modeling_pipeline
+        logger.info("Starting Modeling task...")
+        result = modeling_pipeline()
+        logger.info(f"Modeling task completed: {result}")
+        return result
+

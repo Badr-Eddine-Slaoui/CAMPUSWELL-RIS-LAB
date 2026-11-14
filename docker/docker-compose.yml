@@ -31,6 +31,7 @@ services:
       - _AIRFLOW_WWW_USER_CREATE=true
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
     command: version
 
   airflow-webserver:
@@ -54,6 +55,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=campuswell_secret_key_risklab_2026_super_secure_key_1234567890
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - PYTHONPATH=/opt/airflow
     command: webserver
     restart: unless-stopped
@@ -77,6 +79,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=campuswell_secret_key_risklab_2026_super_secure_key_1234567890
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - PYTHONPATH=/opt/airflow
     command: scheduler
     restart: unless-stopped
